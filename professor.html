@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas — Painel do Professor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/atlas-icon-black.png">
+<style>
+  :root{
+    --navy:#0F1E2D;
+    --blue:#1D4ED8;
+    --red:#E63946;
+    --grey:#F2F2F4;
+    --white:#FFFFFF;
+    --navy-soft:#16283b;
+    --line:rgba(255,255,255,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    background:var(--grey);
+    color:var(--navy);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  header{background:var(--navy);color:var(--white);}
+  .header-inner{
+    max-width:1120px;margin:0 auto;padding:28px 32px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:0.02em;}
+  .brand img{width:26px;height:26px;}
+  nav.top-nav{display:flex;gap:28px;font-size:14px;font-weight:500;opacity:0.85;}
+  nav.top-nav a{color:var(--white);text-decoration:none;}
+  nav.top-nav a:hover{opacity:0.8;}
+
+  .hero{max-width:1120px;margin:0 auto;padding:48px 32px 40px;color:var(--white);background:var(--navy);}
+  .eyebrow{
+    font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--red);margin-bottom:10px;
+  }
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.01em;margin-bottom:10px;}
+  .hero h1 span{color:var(--red);}
+  .hero p{font-size:15px;color:#c3ccd6;max-width:560px;line-height:1.6;}
+
+  main{max-width:1120px;margin:0 auto;padding:48px 32px 80px;}
+  .section-title{font-size:20px;font-weight:800;margin-bottom:6px;}
+  .section-sub{font-size:13.5px;color:#5b6472;margin-bottom:22px;}
+
+  .admin-card{
+    background:var(--white);border-radius:16px;padding:24px;
+    border:1px solid rgba(15,30,45,0.06);box-shadow:0 1px 2px rgba(15,30,45,0.06);
+    margin-bottom:40px;display:flex;gap:18px;align-items:flex-start;
+  }
+  .admin-card .icon-box{
+    width:42px;height:42px;border-radius:10px;background:rgba(29,78,216,0.1);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .admin-card .icon-box svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:2;}
+  .admin-card h3{font-size:15px;font-weight:700;margin-bottom:6px;}
+  .admin-card p{font-size:13.5px;color:#5b6472;line-height:1.6;}
+  .admin-card a{color:var(--blue);font-weight:700;text-decoration:none;}
+  .admin-card a:hover{text-decoration:underline;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:20px;}
+  .card{
+    background:var(--white);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;
+    display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(15,30,45,0.06);
+    border:1px solid rgba(15,30,45,0.06);transition:transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(15,30,45,0.14);}
+  .card-cover{
+    height:120px;position:relative;display:flex;align-items:flex-end;padding:14px 16px;
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+  }
+  .card-cover.alt{background:linear-gradient(135deg, #1D4ED8 0%, #12318f 100%);}
+  .tag{
+    font-size:10.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#fff;
+    background:rgba(255,255,255,0.14);padding:4px 9px;border-radius:999px;
+  }
+  .card-body{padding:16px;}
+  .card-body h3{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .card-body span{font-size:12.5px;color:var(--blue);font-weight:700;}
+
+  #accessDenied{
+    display:none;max-width:480px;margin:120px auto;text-align:center;padding:0 24px;
+  }
+  #accessDenied h2{font-size:22px;margin-bottom:10px;}
+  #accessDenied p{color:#5b6472;margin-bottom:20px;}
+  #accessDenied a{color:var(--blue);font-weight:700;text-decoration:none;}
+
+  #appContent{display:none;}
+
+  @media (max-width:640px){
+    .header-inner{padding:22px 20px;}
+    nav.top-nav{display:none;}
+    .hero{padding:36px 20px 32px;}
+    main{padding:36px 20px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="appContent">
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <img src="assets/atlas-icon-white.png" alt="Atlas">
+        ATLAS
+      </div>
+      <nav class="top-nav">
+        <a href="#cursos">Cursos</a>
+        <a href="#" id="logoutBtn" style="opacity:1;">Sair</a>
+      </nav>
+    </div>
+    <div class="hero">
+      <div class="eyebrow">Painel do Professor</div>
+      <h1>Bem-vindo, <span id="professorNome">professor</span>.</h1>
+      <p>Espaço de acompanhamento do Atlas English. Por aqui você acessa rapidamente os cursos e gerencia quem tem acesso a cada um.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="admin-card">
+      <div class="icon-box">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1.5 7L12 17.5 5.5 21 7 14 2 9l7-1z"/></svg>
+      </div>
+      <div>
+        <h3>Gerenciar acesso dos alunos</h3>
+        <p>
+          Cadastro de alunos, liberação de cursos e visualização de quem já se matriculou continuam sendo feitos
+          diretamente no painel do Supabase (Authentication → Users, e Table Editor → enrollments) — por segurança,
+          essas informações não podem ser expostas aqui no site público.
+          <br><br>
+          <a href="https://supabase.com/dashboard" target="_blank" rel="noopener">Abrir painel do Supabase →</a>
+        </p>
+      </div>
+    </div>
+
+    <div id="cursos">
+      <div class="section-title">Seus cursos</div>
+      <div class="section-sub">Acesso rápido ao conteúdo de cada curso.</div>
+      <div class="grid" id="course-grid"></div>
+    </div>
+  </main>
+</div>
+
+<div id="accessDenied">
+  <h2>Acesso restrito</h2>
+  <p>Essa área é exclusiva da equipe do Atlas. Se você é aluno, procure a Área do Aluno.</p>
+  <a href="index.html">Voltar para o site</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js"></script>
+<script>
+  // Mesma lista de cursos usada no aluno.html — mantenha as duas em sincronia.
+  const courses = [
+    {
+      slug: "ingles-do-zero",
+      title: "Inglês do Zero à Conversação Real",
+      type: "Curso",
+      coverStyle: "",
+      href: "cursos/ingles-do-zero/index.html"
+    },
+    {
+      slug: "ingles-na-pratica",
+      title: "Coleção Inglês na Prática",
+      type: "Curso",
+      coverStyle: "alt",
+      href: "cursos/ingles-na-pratica/index.html"
+    }
+  ];
+
+  // Só estes e-mails podem acessar o painel do professor.
+  const ADMIN_EMAILS = ['lucascfs15123@gmail.com'];
+
+  function renderCourses() {
+    const grid = document.getElementById('course-grid');
+    courses.forEach(c => {
+      const a = document.createElement('a');
+      a.className = 'card';
+      a.href = c.href;
+      a.innerHTML = `
+        <div class="card-cover ${c.coverStyle}">
+          <span class="tag">${c.type}</span>
+        </div>
+        <div class="card-body">
+          <h3>${c.title}</h3>
+          <span>Abrir conteúdo →</span>
+        </div>
+      `;
+      grid.appendChild(a);
+    });
+  }
+
+  (async function initProfessorPanel() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session || !ADMIN_EMAILS.includes(session.user.email)) {
+      document.getElementById('accessDenied').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('professorNome').textContent = session.user.email;
+    document.getElementById('appContent').style.display = 'block';
+    renderCourses();
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    logoutBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      await supabaseClient.auth.signOut();
+      window.location.href = 'index.html';
+    });
+  })();
+</script>
+</body>
+</html>
