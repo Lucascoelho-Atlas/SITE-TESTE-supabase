@@ -270,6 +270,63 @@
     main{padding:40px 20px 72px;}
     .ascend-line{display:none;}
   }
+
+  /* ---------- PENDING STATE (sem matricula ainda) ---------- */
+  .pending-card{
+    background:var(--white);
+    border-radius:20px;
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    max-width:560px;
+    margin:0 auto;
+    box-shadow:0 1px 2px rgba(15,30,45,0.06);
+    border:1px solid rgba(15,30,45,0.06);
+  }
+  .pending-icon{
+    width:56px;height:56px;
+    border-radius:50%;
+    background:rgba(29,78,216,0.1);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:20px;
+  }
+  .pending-icon svg{width:28px;height:28px;stroke:var(--blue);fill:none;stroke-width:2;}
+  .pending-card h3{font-size:20px;font-weight:800;margin-bottom:10px;}
+  .pending-card > p{font-size:14px;color:#5b6472;line-height:1.6;margin-bottom:28px;}
+  .pending-steps{
+    display:flex;
+    gap:18px;
+    width:100%;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .pending-step{flex:1;min-width:120px;}
+  .pending-step .num{
+    width:32px;height:32px;
+    border-radius:50%;
+    background:var(--navy);
+    color:var(--white);
+    font-size:13px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 10px;
+  }
+  .pending-step span{font-size:12.5px;color:#5b6472;line-height:1.4;display:block;}
+  .pending-contact{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--blue);
+    text-decoration:none;
+    padding:12px 20px;
+    border:1px solid rgba(29,78,216,0.2);
+    border-radius:999px;
+  }
+  .pending-contact:hover{background:rgba(29,78,216,0.06);}
 </style>
 </head>
 <body>
@@ -310,6 +367,29 @@
       <span class="count" id="course-count"></span>
     </div>
     <div class="grid" id="course-grid"></div>
+
+    <div class="pending-card" id="pendingState" style="display:none;">
+      <div class="pending-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+      </div>
+      <h3>Cadastro realizado com sucesso!</h3>
+      <p>Recebemos seus dados. Seu acesso à plataforma será liberado assim que nosso time confirmar seu cadastro.</p>
+      <div class="pending-steps">
+        <div class="pending-step">
+          <div class="num">1</div>
+          <span>Entraremos em contato com você</span>
+        </div>
+        <div class="pending-step">
+          <div class="num">2</div>
+          <span>Entenderemos seus objetivos</span>
+        </div>
+        <div class="pending-step">
+          <div class="num">3</div>
+          <span>Liberaremos seu acesso à plataforma</span>
+        </div>
+      </div>
+      <a class="pending-contact" href="https://wa.me/5527988581951" target="_blank" rel="noopener">Dúvidas? Fale com um consultor →</a>
+    </div>
   </section>
 </main>
 
@@ -440,7 +520,13 @@ const ADMIN_EMAILS = ['lucascfs15123@gmail.com'];
     const allowedSlugs = (enrollments || []).map(e => e.course_slug);
     const myCourses = courses.filter(c => allowedSlugs.includes(c.slug));
 
-    renderCourses(myCourses);
+    if (myCourses.length === 0) {
+      // Cadastro feito, mas ainda sem nenhum curso liberado pelo professor
+      document.getElementById('conteudos').querySelector('.section-head').style.display = 'none';
+      document.getElementById('pendingState').style.display = 'flex';
+    } else {
+      renderCourses(myCourses);
+    }
   }
 
   // Botão de sair
