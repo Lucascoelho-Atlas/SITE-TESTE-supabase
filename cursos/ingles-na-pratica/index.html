@@ -399,6 +399,7 @@ body.dark .back-btn { background: #101a25; color: #fff; border-color: #1e2c3d; }
 </style>
 </head>
 <body>
+<div id="courseContent" style="display:none;">
 <button id="theme-toggle">🌙 Modo noturno</button>
 
 <div id="hub-menu">
@@ -3048,5 +3049,49 @@ function showMenu() {
 })();
 </script>
 
+</div>
+
+<div id="accessDenied" style="display:none; max-width:480px; margin:120px auto; text-align:center; padding:0 24px; font-family:'Plus Jakarta Sans', -apple-system, sans-serif;">
+  <h2 style="font-size:22px; margin-bottom:10px;">Acesso restrito</h2>
+  <p style="color:#5b6472; margin-bottom:20px;">Você precisa estar matriculado neste curso para acessar o conteúdo.</p>
+  <a href="../../aluno.html" style="color:#1D4ED8; font-weight:700; text-decoration:none;">Voltar para meus cursos</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../assets/supabase-config.js"></script>
+<script>
+(async function protectCourse(){
+  var COURSE_SLUG = 'ingles-na-pratica';
+  var ADMIN_EMAILS = ['lucascfs15123@gmail.com'];
+
+  var content = document.getElementById('courseContent');
+  var denied = document.getElementById('accessDenied');
+
+  var { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    window.location.href = '../../index.html';
+    return;
+  }
+
+  if (ADMIN_EMAILS.includes(session.user.email)) {
+    content.style.display = 'block';
+    return;
+  }
+
+  var { data: enrollment } = await supabaseClient
+    .from('enrollments')
+    .select('course_slug')
+    .eq('user_id', session.user.id)
+    .eq('course_slug', COURSE_SLUG)
+    .maybeSingle();
+
+  if (enrollment) {
+    content.style.display = 'block';
+  } else {
+    denied.style.display = 'block';
+  }
+})();
+</script>
 </body>
 </html>
