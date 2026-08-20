@@ -1739,6 +1739,7 @@
             <p class="hero-login-subtitle" id="authSubtitle">Faça login para continuar sua jornada.</p>
 
             <p id="authMessage" style="display:none; text-align:center; font-size:0.85rem; margin-bottom:14px; padding:10px; border-radius:8px;"></p>
+            <button type="button" id="resendConfirmationBtn" style="display:none; width:100%; margin-bottom:14px; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.25); background:transparent; color:#fff; font-size:0.82rem; font-weight:700; cursor:pointer;">Reenviar e-mail de confirmação</button>
 
             <div class="form-group">
               <label class="form-label hero-form-label hero-field-label" for="hero-email">
@@ -2503,8 +2504,10 @@
       const toggleAuthMode = document.getElementById('toggleAuthMode');
       const forgotLink = document.getElementById('forgotLink');
       const heroLoginRow = document.querySelector('.hero-login-row');
+      const resendConfirmationBtn = document.getElementById('resendConfirmationBtn');
 
       let authMode = 'login'; // 'login' ou 'signup'
+      let pendingConfirmationEmail = '';
 
       function showAuthMessage(text, type) {
         authMessage.textContent = text;
@@ -2516,6 +2519,34 @@
           authMessage.style.background = 'rgba(35,103,168,0.15)';
           authMessage.style.color = '#8ab8e6';
         }
+      }
+
+      function showResendButton(email) {
+        pendingConfirmationEmail = email;
+        resendConfirmationBtn.style.display = 'block';
+      }
+
+      if (resendConfirmationBtn) {
+        resendConfirmationBtn.addEventListener('click', async function() {
+          if (!pendingConfirmationEmail) return;
+          resendConfirmationBtn.disabled = true;
+          const originalLabel = resendConfirmationBtn.textContent;
+          resendConfirmationBtn.textContent = 'Enviando...';
+
+          const { error } = await supabaseClient.auth.resend({
+            type: 'signup',
+            email: pendingConfirmationEmail
+          });
+
+          if (error) {
+            showAuthMessage('Não foi possível reenviar: ' + error.message, 'error');
+          } else {
+            showAuthMessage('E-mail de confirmação reenviado! Confira sua caixa de entrada (e o spam).', 'success');
+          }
+
+          resendConfirmationBtn.disabled = false;
+          resendConfirmationBtn.textContent = originalLabel;
+        });
       }
 
       // Se a pessoa já estiver logada, já manda pro dashboard
@@ -2532,6 +2563,7 @@
         toggleAuthMode.addEventListener('click', function(e) {
           e.preventDefault();
           authMessage.style.display = 'none';
+          resendConfirmationBtn.style.display = 'none';
           if (authMode === 'login') {
             authMode = 'signup';
             authTitle.innerHTML = 'Criar <span class="highlight">conta</span>';
@@ -2585,6 +2617,7 @@
         authForm.addEventListener('submit', async function(e) {
           e.preventDefault();
           authMessage.style.display = 'none';
+          resendConfirmationBtn.style.display = 'none';
 
           const email = document.getElementById('hero-email').value.trim();
           const password = document.getElementById('hero-password').value;
@@ -2596,7 +2629,12 @@
           if (authMode === 'login') {
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) {
-              showAuthMessage('E-mail ou senha incorretos.', 'error');
+              if (error.message.toLowerCase().includes('email not confirmed')) {
+                showAuthMessage('Seu e-mail ainda não foi confirmado.', 'error');
+                showResendButton(email);
+              } else {
+                showAuthMessage('E-mail ou senha incorretos.', 'error');
+              }
             } else {
               showAuthMessage('Login feito! Redirecionando...', 'success');
               setTimeout(() => { window.location.href = 'aluno.html'; }, 600);
@@ -2608,6 +2646,7 @@
               showAuthMessage(error.message.includes('already registered') ? 'Esse e-mail já tem cadastro.' : 'Erro ao criar conta: ' + error.message, 'error');
             } else {
               showAuthMessage('Conta criada! Verifique seu e-mail para confirmar antes de entrar.', 'success');
+              showResendButton(email);
             }
           }
 
